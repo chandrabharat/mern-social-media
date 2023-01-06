@@ -52,6 +52,35 @@ export const register = async(req, res) => {
         res.status(201).json(savedUser);
     } catch (err) {
         // Server side error with either saving, generating salt, or hashing
-        res.status(500).json({error : err.message + req.body.password});
+        res.status(500).json({error : err.message});
+    }
+};
+
+/* LOGGING IN */
+export const login = async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        // Use mongoose to find user metaData for this specified email 
+        const user = await User.findOne({ email: email });
+        // Malformed request so error status is 400 and the message with the error is that user does not exist
+        if (!user) return res.status(400).json({ msg: "User does not exist. "});
+
+        // Will use the same salt during registration to compare if the inputted password is correct
+        const isMatch = await bcrypt.compare(password, user.password);
+
+        if (!isMatch) return res.status(400).json({ msg: "Invalid credentials. "});
+
+        // Generate a json webtoken with user_id made by mongodb and a secret defined in .env
+        // The process object is a global object in Node.js that provides information about the
+        // current Node.js process.
+        const token = jwt.sign({ id : user._id }, process.env.JWT_SECRET);
+
+        // Does not delete the password from the DB it simply deletes it from the user returned object so it 
+        // is not send to the front end with the status code
+        delete user.password;
+        res.status(200).json({ token, user });
+    } catch (err) {
+        // Server side error with either findOne, isMatch
+        res.status(500).json({error : err.message});
     }
 }

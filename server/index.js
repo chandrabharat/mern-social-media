@@ -8,6 +8,7 @@ import helmet from "helmet";
 import morgan from "morgan";
 import path from "path";
 import { fileURLToPath } from "url";
+import authRoutes from "./routes/auth.js";
 import { createBrotliCompress } from "zlib";
 import { register } from "./controllers/auth.js";
 
@@ -62,10 +63,21 @@ const storage = multer.diskStorage({
 // The multer() function creates an instance of the multer middleware with the specified storage options
 const upload = multer({storage});
 
-/* ROUTES WITH FILES */
+/* ROUTES WITH FILES (need upload variable which is why it is not included in authRoutes)*/
+
 // We hit '/auth/register' route and then we upload the picture locally defined by multer.diskstorage.destination
 // as middleware function Then register controller function is called
 app.post("/auth/register", upload.single("picture"), register);
+
+/* ROUTES WITHOUT FILES*/
+
+// The app.use function sets up middleware in the Express application.
+// In this case, it mounts the middleware functions defined in the authRoutes
+// object at the path /auth
+
+// All routes in authRoutes will be prefixed by /auth
+app.use("/auth", authRoutes);
+
 
 /* MONGOOSE SETUP */
 const PORT = process.env.PORT || 6001;
