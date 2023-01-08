@@ -9,8 +9,11 @@ import morgan from "morgan";
 import path from "path";
 import { fileURLToPath } from "url";
 import authRoutes from "./routes/auth.js";
-import { createBrotliCompress } from "zlib";
+import userRoutes from "./routes/users.js";
+import postRoutes from "./routes/posts.js";
 import { register } from "./controllers/auth.js";
+import { createPost } from "./controllers/posts.js";
+import { verifyToken } from "./middleware/auth.js";
 
 /* CONFIGURATIONS */
 
@@ -69,6 +72,9 @@ const upload = multer({storage});
 // as middleware function Then register controller function is called
 app.post("/auth/register", upload.single("picture"), register);
 
+// upload.single("picture") -> When the front end sends the picture image this line will grab the picture property
+app.post("/posts", verifyToken, upload.single("picture"), createPost);
+
 /* ROUTES WITHOUT FILES*/
 
 // The app.use function sets up middleware in the Express application.
@@ -77,6 +83,10 @@ app.post("/auth/register", upload.single("picture"), register);
 
 // All routes in authRoutes will be prefixed by /auth
 app.use("/auth", authRoutes);
+// All routes in userRoutes will be prefixed by /users
+app.use("/users", userRoutes);
+// All routes in postRoutes will be prefixed by /posts
+app.use("/posts", postRoutes)
 
 
 /* MONGOOSE SETUP */

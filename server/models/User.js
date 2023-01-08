@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 
+// Create the schema for the User and how it will be saved in mongoDB
 const UserSchema = new mongoose.Schema(
     {
       firstName: {
@@ -42,5 +43,9 @@ const UserSchema = new mongoose.Schema(
     { timestamps: true }
   );
 
+  // Configure the DB to be compatible with mongoose so we can use mongoose
+  // commands on the DB
   const User = mongoose.model("User", UserSchema);
+
+  // Export user table for use by other files
   export default User;
