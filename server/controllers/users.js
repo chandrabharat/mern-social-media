@@ -1,4 +1,4 @@
-import User from "../models/User";
+import User from "../models/User.js";
 
 /* READ Controller Action*/
 export const getUser = async(req, res) => {
@@ -19,23 +19,24 @@ export const getUser = async(req, res) => {
     }
 };
 
-export const getUserFriends = async(req, res) => {
+export const getUserFriends = async (req, res) => {
     try {
-        const user = await getUser(req, res);
-        const friends = await Promise.all(
-            user.friends.map((id) => User.findById(id))
-        );
-        const formattedFriends = friends.map(
-            ({ _id, firstName, lastName, occupation, location, picturePath }) => {
-                return { _id, firstName, lastName, occupation, location, picturePath }
-            }
-        );
-        res.status(200).json(formattedFriends);
+      const { id } = req.params;
+      const user = await User.findById(id);
+  
+      const friends = await Promise.all(
+        user.friends.map((id) => User.findById(id))
+      );
+      const formattedFriends = friends.map(
+        ({ _id, firstName, lastName, occupation, location, picturePath }) => {
+          return { _id, firstName, lastName, occupation, location, picturePath };
+        }
+      );
+      res.status(200).json(formattedFriends);
     } catch (err) {
-        // The server cannot find the requested resource
-        res.status(404).json({ message: err.message });
+      res.status(404).json({ message: err.message });
     }
-};
+  };
 
 /* UPDATE */
 export const addRemoveFriend = async(req, res) => {
